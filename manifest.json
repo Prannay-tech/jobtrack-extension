@@ -1,15 +1,22 @@
 {
   "manifest_version": 3,
   "name": "JobTrack",
-  "version": "1.0.0",
-  "description": "Log job applications with one shortcut. Tracks to Google Sheets automatically.",
+  "version": "3.0.0",
+  "description": "Log job applications with one shortcut. Tracks to Google Sheets + Calendar automatically.",
 
   "permissions": ["storage", "identity", "activeTab", "notifications", "scripting", "alarms"],
-  "host_permissions": ["https://sheets.googleapis.com/*", "https://*.workers.dev/*"],
+  "host_permissions": [
+    "https://sheets.googleapis.com/*",
+    "https://calendar.googleapis.com/*",
+    "https://*.workers.dev/*"
+  ],
 
   "oauth2": {
     "client_id": "1061501081696-m3fvokg7dl1isn0feivqbsctsk0b3p6q.apps.googleusercontent.com",
-    "scopes": ["https://www.googleapis.com/auth/spreadsheets"]
+    "scopes": [
+      "https://www.googleapis.com/auth/spreadsheets",
+      "https://www.googleapis.com/auth/calendar.events"
+    ]
   },
 
   "commands": {

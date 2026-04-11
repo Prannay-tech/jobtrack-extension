@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>JobTrack — Privacy Policy</title>
+  <style>
+    body { max-width: 720px; margin: 60px auto; padding: 0 24px 80px;
+           font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+           font-size: 16px; line-height: 1.7; color: #1e293b; }
+    h1 { font-size: 28px; font-weight: 800; margin-bottom: 6px; color: #0d1526; }
+    .updated { color: #94a3b8; font-size: 14px; margin-bottom: 40px; }
+    h2 { font-size: 18px; font-weight: 700; margin: 32px 0 10px; color: #0d1526; }
+    p, li { color: #374151; margin-bottom: 10px; }
+    ul { padding-left: 22px; }
+    a { color: #3b6ff5; }
+    .badge { display:inline-block; background:#f0fdf4; color:#166534; border:1px solid #bbf7d0;
+             border-radius:6px; padding:2px 10px; font-size:13px; font-weight:600; margin-bottom:16px; }
+  </style>
+</head>
+<body>
+  <h1>JobTrack Privacy Policy</h1>
+  <div class="updated">Last updated: April 2026</div>
+  <div class="badge">✅ We do not sell or share your data</div>
+
+  <h2>What JobTrack Does</h2>
+  <p>JobTrack is a Chrome extension that helps you log job applications with a keyboard shortcut. It saves application data to your personal Google Sheet and optionally creates events in your Google Calendar.</p>
+
+  <h2>Data We Collect</h2>
+  <p>JobTrack collects the following data when you log a job application:</p>
+  <ul>
+    <li>Job title, company name, and job URL (scraped from the current page)</li>
+    <li>Application date and status</li>
+    <li>Notes you optionally add</li>
+    <li>AI-generated role brief, years of experience estimate, and top skills (derived from the job description text)</li>
+  </ul>
+
+  <h2>Where Your Data Goes</h2>
+  <ul>
+    <li><strong>Your Google Sheet:</strong> All application data is written directly to a Google Spreadsheet that you own and specify. We never access any other spreadsheets.</li>
+    <li><strong>Your Google Calendar:</strong> If you opt in, we create events in your primary Google Calendar for daily application counts, follow-up reminders, and interview slots.</li>
+    <li><strong>Your device:</strong> Application data is cached locally in <code>chrome.storage.local</code> to power the popup UI. This data never leaves your device except to write to your Google Sheet/Calendar.</li>
+    <li><strong>AI analysis proxy:</strong> The job description text is sent to our Cloudflare Worker proxy, which forwards it to Groq's API to generate a role brief, YOE estimate, and skills. No personally identifiable information is included. The job description text is not stored by our proxy.</li>
+  </ul>
+
+  <h2>Google OAuth Permissions</h2>
+  <p>JobTrack requests the following Google OAuth scopes:</p>
+  <ul>
+    <li><code>spreadsheets</code> — to append rows to your Google Sheet</li>
+    <li><code>calendar.events</code> — to create events in your Google Calendar</li>
+  </ul>
+  <p>We only write data — we never read, modify, or delete existing data in your Sheet or Calendar beyond what JobTrack created.</p>
+
+  <h2>Data Retention</h2>
+  <p>Local storage can be cleared at any time by removing the extension. Data in your Google Sheet and Calendar is yours — delete it any time directly from Google.</p>
+
+  <h2>Third-Party Services</h2>
+  <ul>
+    <li><strong>Google Sheets API &amp; Calendar API</strong> — governed by <a href="https://policies.google.com/privacy" target="_blank">Google's Privacy Policy</a></li>
+    <li><strong>Groq API</strong> — job description text is processed to extract role insights. See <a href="https://groq.com/privacy-policy/" target="_blank">Groq's Privacy Policy</a></li>
+    <li><strong>Cloudflare Workers</strong> — our proxy layer. See <a href="https://www.cloudflare.com/privacypolicy/" target="_blank">Cloudflare's Privacy Policy</a></li>
+  </ul>
+
+  <h2>Children's Privacy</h2>
+  <p>JobTrack is not directed at children under 13 and does not knowingly collect data from children.</p>
+
+  <h2>Changes to This Policy</h2>
+  <p>We may update this policy as the extension evolves. Continued use of JobTrack constitutes acceptance of the updated policy.</p>
+
+  <h2>Contact</h2>
+  <p>Questions? Open an issue on the <a href="https://github.com/prannaykhushalani/jobtrack-extension" target="_blank">GitHub repository</a> or email via GitHub.</p>
+</body>
+</html>

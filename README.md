@@ -1,86 +1,114 @@
-# JobTrack Chrome Extension
+# JobTrack — Chrome Extension
 
-Log job applications instantly with a keyboard shortcut. Saves to Google Sheets automatically.
+Log job applications in one keystroke. Auto-saves to Google Sheets, analyzes roles with AI, and syncs to Google Calendar.
 
----
-
-## Setup Guide
-
-### 1. Create a Google Cloud Project & OAuth Credentials
-
-1. Go to [console.cloud.google.com](https://console.cloud.google.com) → **New Project**
-2. In the left sidebar: **APIs & Services → Library**
-3. Search for **Google Sheets API** → Enable it
-4. Go to **APIs & Services → Credentials → Create Credentials → OAuth 2.0 Client ID**
-5. Choose **Application type: Chrome Extension**
-6. Enter your extension's ID (you'll get this in step 4 below — come back after loading the extension)
-7. Copy the generated **Client ID**
-
-### 2. Add Your Client ID to the Extension
-
-Open `manifest.json` and replace the placeholder:
-
-```json
-"oauth2": {
-  "client_id": "YOUR_GOOGLE_OAUTH_CLIENT_ID.apps.googleusercontent.com",
-  ...
-}
-```
-
-### 3. Create a Google Sheet
-
-1. Go to [sheets.google.com](https://sheets.google.com) → **Blank spreadsheet**
-2. Copy the **Sheet ID** from the URL:
-   ```
-   https://docs.google.com/spreadsheets/d/SHEET_ID_IS_HERE/edit
-   ```
-
-### 4. Load the Extension in Chrome
-
-1. Open Chrome → navigate to `chrome://extensions`
-2. Enable **Developer mode** (toggle in top-right)
-3. Click **Load unpacked**
-4. Select the `jobtrack-extension` folder
-5. Note your **Extension ID** shown on the card — go back to step 1 and add it to your OAuth credential
-
-### 5. Configure the Extension
-
-1. Click the **JobTrack** icon in your Chrome toolbar
-2. Click the **gear icon ⚙** (top-right of popup)
-3. Paste your **Google Sheet ID** (or the full Sheet URL — it'll parse the ID automatically)
-4. Click **Save**
-
-### 6. Log Your First Application
-
-1. Navigate to any job listing page (LinkedIn, Indeed, Glassdoor, Greenhouse, Lever, Workday, or any site)
-2. Press **Ctrl+Shift+J** (Windows/Linux) or **⌘+Shift+J** (Mac)
-3. The extension scrapes the job title, company, and URL automatically
-4. A notification confirms the log
-5. The row is appended to your Google Sheet instantly
+![Version](https://img.shields.io/badge/version-3.0.0-blue) ![MV3](https://img.shields.io/badge/Manifest-V3-green)
 
 ---
 
-## Google Sheet Structure
+## Features
 
-The extension auto-creates a header row on first use:
-
-| Date | Company | Job Title | URL | Job Site | Status | Notes |
-|------|---------|-----------|-----|----------|--------|-------|
-| 2026-04-10 | Acme Corp | Software Engineer | https://... | LinkedIn | Applied | |
+| Feature | Description |
+|---|---|
+| ⌨️ **One-shortcut logging** | Press `Cmd+Shift+X` (Mac) / `Ctrl+Shift+X` (Win) on any job page |
+| 🤖 **AI analysis** | Auto-extracts role brief, YOE requirement, and top skills via Groq |
+| 📊 **Dashboard** | 14-day activity chart, pipeline funnel, streak counter |
+| 📅 **Calendar sync** | Daily count events, follow-up reminders, interview events |
+| 🔄 **Status tracking** | Click to cycle: Applied → Phone Screen → Interview → Offer → Rejected |
+| 🔔 **Stale reminders** | Badge alert for applications stuck at "Applied" for 7+ days |
+| ⬇️ **CSV export** | One-click download of all applications |
+| 🔍 **Duplicate detection** | Warns before logging the same job twice |
+| 📝 **Notes overlay** | Add notes + follow-up date before every log |
 
 ---
 
 ## Supported Job Sites
 
-| Site | Detection |
-|------|-----------|
-| LinkedIn | linkedin.com |
-| Indeed | indeed.com |
-| Glassdoor | glassdoor.com |
-| Greenhouse | greenhouse.io |
-| Lever | lever.co |
-| Workday | workday.com |
-| Any other site | Generic fallback (first H1 + hostname) |
+| Site | Scraper |
+|---|---|
+| LinkedIn | ✅ Dedicated |
+| Indeed | ✅ Dedicated |
+| Glassdoor | ✅ Dedicated |
+| Greenhouse | ✅ Dedicated |
+| Lever | ✅ Dedicated |
+| Workday / myworkdayjobs | ✅ Dedicated |
+| Google Careers | ✅ Dedicated |
+| Ashby | ✅ Dedicated |
+| SmartRecruiters | ✅ Dedicated |
+| Amazon Jobs | ✅ Dedicated |
+| Microsoft Careers | ✅ Dedicated |
+| Meta Careers | ✅ Dedicated |
+| BambooHR | ✅ Dedicated |
+| ADP Workforcenow | ✅ Dedicated |
+| UKG / UltiPro | ✅ Dedicated |
+| 15+ others | ✅ Smart generic fallback (JSON-LD, OG tags, hostname) |
+
+---
+
+## Setup Guide
+
+### 1. Google Cloud — Sheets + Calendar API
+
+1. Go to [console.cloud.google.com](https://console.cloud.google.com) → **New Project**
+2. **APIs & Services → Library** → Enable:
+   - **Google Sheets API**
+   - **Google Calendar API**
+3. **APIs & Services → OAuth consent screen**
+   - User type: External → Create
+   - Add scopes: `spreadsheets` + `calendar.events`
+   - Add your Gmail as a **Test user**
+4. **Credentials → Create Credentials → OAuth 2.0 Client ID**
+   - Application type: **Chrome Extension**
+   - Add your Extension ID (get it from `chrome://extensions` after step 3)
+   - Copy the **Client ID**
+
+### 2. Paste Client ID into manifest.json
+
+```json
+"oauth2": {
+  "client_id": "YOUR_CLIENT_ID.apps.googleusercontent.com",
+  ...
+}
+```
+
+### 3. Deploy the AI Worker (Cloudflare + Groq)
+
+Get a free API key at [console.groq.com](https://console.groq.com), then:
+
+```bash
+cd cloudflare-worker
+npm install -g wrangler
+wrangler login
+wrangler kv namespace create JOBTRACK_KV   # paste ID into wrangler.toml
+wrangler secret put GROQ_API_KEY           # paste Groq key when prompted
+wrangler deploy
+```
+
+Copy the worker URL (e.g. `https://jobtrack-ai.yourname.workers.dev`) and paste it into `background.js`:
+```js
+const WORKER_URL = "https://jobtrack-ai.yourname.workers.dev";
+```
+
+### 4. Load the Extension
+
+1. `chrome://extensions` → Enable **Developer mode**
+2. **Load unpacked** → select the `jobtrack-extension` folder
+3. Note the **Extension ID** → add it to your Google Cloud OAuth credential
+
+### 5. Configure
+
+1. Click the **JobTrack** icon → gear ⚙ → paste your Google Sheet ID → **Save**
+2. Press **Cmd+Shift+X** on any job page — Chrome will prompt you to sign in with Google
+
+---
+
+## Google Sheet Structure
+
+Headers (auto-created on first use):
+
+| Date | Company | Job Title | URL | Job Site | Status | Notes | Brief | YOE | Top Skills |
+|---|---|---|---|---|---|---|---|---|---|
+| 2026-04-11 | Stripe | Software Engineer | https://... | Lever | Applied | Referred by Jane | Builds payment infra | Mid (3-5y) | Go, Kubernetes, gRPC |
 
 ---
 
@@ -88,26 +116,49 @@ The extension auto-creates a header row on first use:
 
 ```
 jobtrack-extension/
-├── manifest.json       # MV3 manifest with permissions & OAuth config
-├── background.js       # Service worker: handles shortcut, Sheets API, storage
-├── content.js          # Content script: scrapes job details from pages
-├── popup.html          # Extension popup UI
-├── popup.js            # Popup logic: stats, settings, open sheet
+├── manifest.json              # MV3 — permissions, OAuth, commands
+├── background.js              # Service worker — Sheets, Calendar, AI, storage
+├── content.js                 # Content script — scraping + log overlay UI
+├── popup.html                 # Extension popup
+├── popup.js                   # Popup logic — tabs, charts, CSV, status cycling
+├── privacy-policy.html        # Privacy policy for Chrome Web Store
 ├── icons/
-│   ├── icon16.svg
-│   ├── icon48.svg
-│   └── icon128.svg
-└── README.md
+│   ├── icon16.png / .svg
+│   ├── icon48.png / .svg
+│   └── icon128.png / .svg
+└── cloudflare-worker/
+    ├── worker.js              # Groq proxy with rate limiting
+    ├── wrangler.toml          # Cloudflare Worker config
+    └── DEPLOY.md              # Deployment instructions
 ```
+
+---
+
+## Keyboard Shortcut
+
+| Platform | Shortcut |
+|---|---|
+| Mac | `Cmd + Shift + X` |
+| Windows / Linux | `Ctrl + Shift + X` |
+
+To change: `chrome://extensions/shortcuts` → JobTrack → "Log current job application"
 
 ---
 
 ## Troubleshooting
 
-**"Could not extract job details"** — The content script couldn't inject on that page. Try refreshing and pressing the shortcut again. Some pages with heavy JS may need a moment to load.
+**Shortcut not working** → Go to `chrome://extensions/shortcuts` and manually set the shortcut for JobTrack.
 
-**"Authentication failed"** — Your OAuth client ID may be wrong, or you haven't added your Extension ID to the allowed origins in Google Cloud Console.
+**"Could not extract job details"** → Refresh the page and wait for it to fully load before pressing the shortcut.
 
-**"Failed to write to Google Sheet"** — Double-check your Sheet ID and that the Sheets API is enabled in your Google Cloud project.
+**"Authentication failed"** → Go to Google Cloud Console → OAuth consent screen → add your Gmail as a Test user.
 
-**Shortcut not working** — Go to `chrome://extensions/shortcuts` and confirm the `Log application` shortcut is set for JobTrack.
+**AI fields are empty** → Check that the Cloudflare Worker is deployed and `WORKER_URL` in `background.js` is set correctly.
+
+**Calendar events not created** → Ensure the Google Calendar API is enabled in your Cloud project and `calendar.events` scope is added to the OAuth consent screen.
+
+---
+
+## Privacy
+
+See [privacy-policy.html](./privacy-policy.html) for the full policy. Summary: your data goes only to your own Google Sheet and Calendar. Job description text is sent to our Groq proxy for AI analysis and is not stored.

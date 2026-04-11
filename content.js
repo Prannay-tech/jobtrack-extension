@@ -440,6 +440,29 @@
         textarea:focus { border-color:#3b6ff5; box-shadow:0 0 0 3px rgba(59,111,245,.12); }
         textarea::placeholder { color:#94a3b8; }
 
+        .followup-row {
+          display:flex; align-items:center; gap:10px; margin-top:10px;
+          padding:8px 10px; background:#f8faff; border-radius:8px;
+          border:1px solid #e0e7ff;
+        }
+
+        .followup-label {
+          display:flex; align-items:center; gap:6px;
+          font-size:12px; color:#475569; cursor:pointer; white-space:nowrap;
+        }
+
+        .followup-label input[type="checkbox"] {
+          width:14px; height:14px; accent-color:#3b6ff5; cursor:pointer; flex-shrink:0;
+        }
+
+        .date-input {
+          flex:1; padding:5px 8px; border:1.5px solid #e2e8f0;
+          border-radius:6px; font-size:12px; color:#0d1526; outline:none;
+          display:none; transition:border-color .15s;
+        }
+        .date-input:focus { border-color:#3b6ff5; }
+        .date-input.visible { display:block; }
+
         .actions { display:flex; gap:8px; margin-top:14px; }
 
         .btn {
@@ -485,11 +508,19 @@
         <label for="jt-notes">Notes (optional)</label>
         <textarea id="jt-notes" placeholder="e.g. Referred by Jane, $140k–$160k, hybrid…"></textarea>
 
+        <div class="followup-row">
+          <label class="followup-label">
+            <input type="checkbox" id="jt-followup-check" />
+            <span>Set follow-up reminder</span>
+          </label>
+          <input type="date" id="jt-followup-date" class="date-input" />
+        </div>
+
         <div class="actions">
           <button class="btn btn-cancel" id="jt-cancel">Cancel</button>
           <button class="btn btn-log" id="jt-confirm">✓ Log Application</button>
         </div>
-        <div class="shortcut-tip">Press <strong>Enter</strong> to log · <strong>Esc</strong> to cancel</div>
+        <div class="shortcut-tip">Press <strong>Cmd+Enter</strong> to log · <strong>Esc</strong> to cancel</div>
       </div>
     `;
 
@@ -498,17 +529,33 @@
     shadow.getElementById("jt-company").textContent = details.company;
     shadow.getElementById("jt-site").textContent    = details.jobSite;
 
-    const notesEl  = shadow.getElementById("jt-notes");
-    const backdrop = shadow.getElementById("backdrop");
+    const notesEl      = shadow.getElementById("jt-notes");
+    const backdrop     = shadow.getElementById("backdrop");
+    const followupChk  = shadow.getElementById("jt-followup-check");
+    const followupDate = shadow.getElementById("jt-followup-date");
+
+    // Default follow-up date: 7 days from today
+    const defaultFollowUp = new Date();
+    defaultFollowUp.setDate(defaultFollowUp.getDate() + 7);
+    followupDate.value = defaultFollowUp.toISOString().slice(0, 10);
+    followupDate.min   = new Date().toISOString().slice(0, 10);
+
+    followupChk.addEventListener("change", () => {
+      followupDate.classList.toggle("visible", followupChk.checked);
+    });
 
     function confirm() {
       host.remove();
-      sendResponse({ confirmed: true, notes: notesEl.value.trim() });
+      sendResponse({
+        confirmed:   true,
+        notes:       notesEl.value.trim(),
+        followUpDate: followupChk.checked ? followupDate.value : null,
+      });
     }
 
     function cancel() {
       host.remove();
-      sendResponse({ confirmed: false, notes: "" });
+      sendResponse({ confirmed: false, notes: "", followUpDate: null });
     }
 
     shadow.getElementById("jt-confirm").addEventListener("click", confirm);
