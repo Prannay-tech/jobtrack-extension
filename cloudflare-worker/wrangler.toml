@@ -1,0 +1,12 @@
+name = "jobtrack-ai"
+main = "worker.js"
+compatibility_date = "2024-01-01"
+
+# KV namespace for rate limiting
+# After running `wrangler kv:namespace create JOBTRACK_KV`, paste the id below
+[[kv_namespaces]]
+binding = "JOBTRACK_KV"
+id = "c8b532dcd38d40bcbcde5333916f5b91"
+
+# Secrets (set via CLI, never commit):
+# wrangler secret put GROQ_API_KEY

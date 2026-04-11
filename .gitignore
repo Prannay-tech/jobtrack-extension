@@ -1,0 +1,12 @@
+# Wrangler
+.wrangler/
+cloudflare-worker/.wrangler/
+node_modules/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Secrets — never commit these
+*.env
+.env*
