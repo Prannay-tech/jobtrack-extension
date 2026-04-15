@@ -9,6 +9,31 @@ function getAdmin() {
   );
 }
 
+// Simple rate limiting: max 10 requests per minute per IP
+const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
+
+function checkRateLimit(ip: string): boolean {
+  const now = Date.now();
+  const limit = rateLimitMap.get(ip);
+
+  if (!limit) {
+    rateLimitMap.set(ip, { count: 1, resetTime: now + 60000 });
+    return true;
+  }
+
+  if (now > limit.resetTime) {
+    rateLimitMap.set(ip, { count: 1, resetTime: now + 60000 });
+    return true;
+  }
+
+  if (limit.count >= 10) {
+    return false;
+  }
+
+  limit.count++;
+  return true;
+}
+
 function cors(res: NextResponse) {
   res.headers.set("Access-Control-Allow-Origin", "*");
   res.headers.set("Access-Control-Allow-Methods", "POST, PATCH, OPTIONS");
@@ -21,6 +46,12 @@ export async function OPTIONS() {
 }
 
 export async function POST(request: NextRequest) {
+  // Rate limiting
+  const ip = request.headers.get("x-forwarded-for") || request.headers.get("x-real-ip") || "unknown";
+  if (!checkRateLimit(ip)) {
+    return cors(NextResponse.json({ error: "Too many requests. Try again in 1 minute." }, { status: 429 }));
+  }
+
   const token = request.headers.get("Authorization")?.replace("Bearer ", "");
   if (!token) return cors(NextResponse.json({ error: "Missing token" }, { status: 401 }));
 
@@ -72,6 +103,12 @@ export async function POST(request: NextRequest) {
 
 // ── PATCH: Update application status ─────────────────────────────────────────
 export async function PATCH(request: NextRequest) {
+  // Rate limiting
+  const ip = request.headers.get("x-forwarded-for") || request.headers.get("x-real-ip") || "unknown";
+  if (!checkRateLimit(ip)) {
+    return cors(NextResponse.json({ error: "Too many requests. Try again in 1 minute." }, { status: 429 }));
+  }
+
   const token = request.headers.get("Authorization")?.replace("Bearer ", "");
   if (!token) return cors(NextResponse.json({ error: "Missing token" }, { status: 401 }));
 
