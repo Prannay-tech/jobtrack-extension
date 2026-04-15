@@ -10,8 +10,8 @@ function AuthForm() {
   const { theme, toggle } = useTheme();
   const dark = theme === "dark";
 
-  const [mode, setMode]         = useState<"signin" | "signup">(
-    searchParams.get("mode") === "signup" ? "signup" : "signin"
+  const [mode, setMode]         = useState<"signin" | "signup" | "forgot">(
+    searchParams.get("mode") === "signup" ? "signup" : searchParams.get("mode") === "forgot" ? "forgot" : "signin"
   );
   const [email, setEmail]       = useState("");
   const [password, setPassword] = useState("");
@@ -30,7 +30,13 @@ function AuthForm() {
     if (mode === "signup") {
       const { error } = await supabase.auth.signUp({ email, password });
       if (error) setError(error.message);
-      else setMsg("Check your email for a confirmation link!");
+      else setMsg("Account created! You can now sign in.");
+    } else if (mode === "forgot") {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${location.origin}/auth/reset?next=${next}`,
+      });
+      if (error) setError(error.message);
+      else setMsg("Password reset link sent to your email. Check your inbox!");
     } else {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) setError(error.message);
@@ -120,16 +126,18 @@ function AuthForm() {
                 onBlur={e => { e.target.style.borderColor = "var(--border)"; e.target.style.boxShadow = "none"; }}
                 placeholder="you@example.com" />
             </div>
-            <div>
-              <label className="block text-xs font-bold uppercase tracking-wider mb-1.5" style={{ color: "var(--text-3)" }}>
-                Password
-              </label>
-              <input type="password" required value={password} onChange={e => setPassword(e.target.value)}
-                style={inputStyle}
-                onFocus={e => { e.target.style.borderColor = "#6e7fc4"; e.target.style.boxShadow = "0 0 0 3px rgba(59,111,245,.15)"; }}
-                onBlur={e => { e.target.style.borderColor = "var(--border)"; e.target.style.boxShadow = "none"; }}
-                placeholder="••••••••" minLength={6} />
-            </div>
+            {mode !== "forgot" && (
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider mb-1.5" style={{ color: "var(--text-3)" }}>
+                  Password
+                </label>
+                <input type="password" required value={password} onChange={e => setPassword(e.target.value)}
+                  style={inputStyle}
+                  onFocus={e => { e.target.style.borderColor = "#6e7fc4"; e.target.style.boxShadow = "0 0 0 3px rgba(59,111,245,.15)"; }}
+                  onBlur={e => { e.target.style.borderColor = "var(--border)"; e.target.style.boxShadow = "none"; }}
+                  placeholder="••••••••" minLength={6} />
+              </div>
+            )}
 
             {error && (
               <div className="text-sm px-4 py-3 rounded-xl" style={{ background: "rgba(220,38,38,0.08)", color: "#dc2626", border: "1px solid rgba(220,38,38,0.2)" }}>
@@ -145,16 +153,47 @@ function AuthForm() {
             <button type="submit" disabled={loading}
               className="w-full py-3 text-white font-bold rounded-xl transition-all hover:opacity-90 hover:-translate-y-px disabled:opacity-60 disabled:translate-y-0 shadow-lg"
               style={{ background: "linear-gradient(135deg,#6e7fc4,#5a6ab0)" }}>
-              {loading ? "Please wait…" : mode === "signin" ? "Sign in" : "Create account"}
+              {loading ? "Please wait…" : mode === "signin" ? "Sign in" : mode === "signup" ? "Create account" : "Send reset link"}
             </button>
           </form>
 
-          <p className="text-center text-sm mt-5" style={{ color: "var(--text-3)" }}>
-            {mode === "signin" ? "Don't have an account? " : "Already have an account? "}
-            <button onClick={() => { setMode(mode === "signin" ? "signup" : "signin"); setError(""); setMsg(""); }}
-              className="font-bold hover:underline" style={{ color: "#6e7fc4" }}>
-              {mode === "signin" ? "Sign up free" : "Sign in"}
-            </button>
+          <p className="text-center text-sm mt-5 space-y-2">
+            {mode === "signin" && (
+              <>
+                <div style={{ color: "var(--text-3)" }}>
+                  Don't have an account?{" "}
+                  <button onClick={() => { setMode("signup"); setError(""); setMsg(""); }}
+                    className="font-bold hover:underline" style={{ color: "#6e7fc4" }}>
+                    Sign up free
+                  </button>
+                </div>
+                <div style={{ color: "var(--text-3)" }}>
+                  Forgot password?{" "}
+                  <button onClick={() => { setMode("forgot"); setError(""); setMsg(""); setPassword(""); }}
+                    className="font-bold hover:underline" style={{ color: "#6e7fc4" }}>
+                    Reset it
+                  </button>
+                </div>
+              </>
+            )}
+            {mode === "signup" && (
+              <div style={{ color: "var(--text-3)" }}>
+                Already have an account?{" "}
+                <button onClick={() => { setMode("signin"); setError(""); setMsg(""); }}
+                  className="font-bold hover:underline" style={{ color: "#6e7fc4" }}>
+                  Sign in
+                </button>
+              </div>
+            )}
+            {mode === "forgot" && (
+              <div style={{ color: "var(--text-3)" }}>
+                Remember your password?{" "}
+                <button onClick={() => { setMode("signin"); setError(""); setMsg(""); }}
+                  className="font-bold hover:underline" style={{ color: "#6e7fc4" }}>
+                  Sign in
+                </button>
+              </div>
+            )}
           </p>
         </div>
 
