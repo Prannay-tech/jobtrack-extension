@@ -39,7 +39,7 @@ export default function Dashboard() {
     // Real-time subscription
     const channel = supabase
       .channel("applications-realtime")
-      .on("postgres_changes", { event: "*", schema: "public", table: "applications" }, (payload) => {
+      .on("postgres_changes", { event: "*", schema: "public", table: "applications" }, (payload: any) => {
         if (payload.eventType === "INSERT") {
           setApps(prev => [payload.new as Application, ...prev]);
         } else if (payload.eventType === "UPDATE") {
