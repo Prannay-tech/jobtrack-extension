@@ -27,9 +27,10 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(new URL("/auth", request.url));
   }
 
-  // Redirect authenticated users away from auth page
+  // Redirect authenticated users away from auth page (honour ?next= param)
   if (user && request.nextUrl.pathname === "/auth") {
-    return NextResponse.redirect(new URL("/dashboard", request.url));
+    const next = request.nextUrl.searchParams.get("next") || "/dashboard";
+    return NextResponse.redirect(new URL(next, request.url));
   }
 
   return supabaseResponse;

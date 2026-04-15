@@ -25,6 +25,8 @@ function AuthForm() {
     e.preventDefault();
     setLoading(true); setError(""); setMsg("");
 
+    const next = searchParams.get("next") || "/dashboard";
+
     if (mode === "signup") {
       const { error } = await supabase.auth.signUp({ email, password });
       if (error) setError(error.message);
@@ -32,7 +34,7 @@ function AuthForm() {
     } else {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) setError(error.message);
-      else router.push("/dashboard");
+      else router.push(next);
     }
     setLoading(false);
   }
@@ -87,7 +89,7 @@ function AuthForm() {
             {mode === "signin" ? "Sign in to view your dashboard" : "Free forever. No credit card required."}
           </p>
 
-          {/* Google */}
+          {/* Google OAuth */}
           <button onClick={handleGoogle}
             className="w-full flex items-center justify-center gap-3 py-3 rounded-xl text-sm font-semibold transition-all hover:opacity-80 mb-5"
             style={{ background: "var(--surface-2)", border: "1.5px solid var(--border)", color: "var(--text-1)" }}>
