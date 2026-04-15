@@ -128,9 +128,20 @@ function AuthForm() {
             </div>
             {mode !== "forgot" && (
               <div>
-                <label className="block text-xs font-bold uppercase tracking-wider mb-1.5" style={{ color: "var(--text-3)" }}>
-                  Password
-                </label>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5" }}>
+                  <label className="block text-xs font-bold uppercase tracking-wider" style={{ color: "var(--text-3)" }}>
+                    Password
+                  </label>
+                  {mode === "signin" && (
+                    <button
+                      type="button"
+                      onClick={() => { setMode("forgot"); setError(""); setMsg(""); setPassword(""); }}
+                      className="text-xs font-bold hover:underline"
+                      style={{ color: "#6e7fc4" }}>
+                      Forgot?
+                    </button>
+                  )}
+                </div>
                 <input type="password" required value={password} onChange={e => setPassword(e.target.value)}
                   style={inputStyle}
                   onFocus={e => { e.target.style.borderColor = "#6e7fc4"; e.target.style.boxShadow = "0 0 0 3px rgba(59,111,245,.15)"; }}
@@ -157,43 +168,12 @@ function AuthForm() {
             </button>
           </form>
 
-          <p className="text-center text-sm mt-5 space-y-2">
-            {mode === "signin" && (
-              <>
-                <div style={{ color: "var(--text-3)" }}>
-                  Don't have an account?{" "}
-                  <button onClick={() => { setMode("signup"); setError(""); setMsg(""); }}
-                    className="font-bold hover:underline" style={{ color: "#6e7fc4" }}>
-                    Sign up free
-                  </button>
-                </div>
-                <div style={{ color: "var(--text-3)" }}>
-                  Forgot password?{" "}
-                  <button onClick={() => { setMode("forgot"); setError(""); setMsg(""); setPassword(""); }}
-                    className="font-bold hover:underline" style={{ color: "#6e7fc4" }}>
-                    Reset it
-                  </button>
-                </div>
-              </>
-            )}
-            {mode === "signup" && (
-              <div style={{ color: "var(--text-3)" }}>
-                Already have an account?{" "}
-                <button onClick={() => { setMode("signin"); setError(""); setMsg(""); }}
-                  className="font-bold hover:underline" style={{ color: "#6e7fc4" }}>
-                  Sign in
-                </button>
-              </div>
-            )}
-            {mode === "forgot" && (
-              <div style={{ color: "var(--text-3)" }}>
-                Remember your password?{" "}
-                <button onClick={() => { setMode("signin"); setError(""); setMsg(""); }}
-                  className="font-bold hover:underline" style={{ color: "#6e7fc4" }}>
-                  Sign in
-                </button>
-              </div>
-            )}
+          <p className="text-center text-sm mt-5" style={{ color: "var(--text-3)" }}>
+            {mode === "signin" ? "Don't have an account? " : mode === "signup" ? "Already have an account? " : "Remember your password? "}
+            <button onClick={() => { setMode(mode === "signup" ? "signin" : "signup"); setError(""); setMsg(""); }}
+              className="font-bold hover:underline" style={{ color: "#6e7fc4" }}>
+              {mode === "signin" ? "Sign up free" : "Sign in"}
+            </button>
           </p>
         </div>
 
