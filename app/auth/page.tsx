@@ -89,10 +89,10 @@ function AuthForm() {
           style={{ background: "var(--surface)", border: "1px solid var(--border)", boxShadow: "var(--shadow-lg)" }}>
 
           <h1 className="text-2xl font-extrabold mb-1 tracking-tight" style={{ color: "var(--text-1)" }}>
-            {mode === "signin" ? "Welcome back" : "Create your account"}
+            {mode === "signin" ? "Welcome back" : mode === "signup" ? "Create your account" : "Reset your password"}
           </h1>
           <p className="text-sm mb-7" style={{ color: "var(--text-3)" }}>
-            {mode === "signin" ? "Sign in to view your dashboard" : "Free forever. No credit card required."}
+            {mode === "signin" ? "Sign in to view your dashboard" : mode === "signup" ? "Free forever. No credit card required." : "Enter your email to receive a reset link"}
           </p>
 
           {/* Note: Google OAuth available after Supabase config */}
