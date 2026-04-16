@@ -36,6 +36,11 @@
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
+      "exclude_matches": [
+        "https://jobtrack-web-prannay-khushalanis-projects.vercel.app/auth*",
+        "https://jobtrack-web-six.vercel.app/auth*",
+        "https://jobtrack-web-git-main-prannay-khushalanis-projects.vercel.app/auth*"
+      ],
       "js": ["content.js"],
       "run_at": "document_idle"
     }
