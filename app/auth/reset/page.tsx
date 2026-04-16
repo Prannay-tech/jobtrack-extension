@@ -20,16 +20,19 @@ function ResetForm() {
   const supabase = createClient();
 
   useEffect(() => {
-    // Check if user has valid session from reset link
-    async function checkSession() {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
+    // Listen for auth state changes - Supabase sets session after parsing URL hash
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === "SIGNED_IN" || event === "PASSWORD_RECOVERY") {
+        // Recovery session is valid, user can now reset password
+        setChecking(false);
+      } else if (!session) {
         setError("Invalid or expired reset link. Please request a new one.");
+        setChecking(false);
       }
-      setChecking(false);
-    }
-    checkSession();
-  }, []);
+    });
+
+    return () => subscription?.unsubscribe();
+  }, [supabase.auth]);
 
   async function handleReset(e: React.FormEvent) {
     e.preventDefault();
