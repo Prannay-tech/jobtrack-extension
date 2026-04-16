@@ -20,34 +20,10 @@ function ResetForm() {
   const supabase = createClient();
 
   useEffect(() => {
-    // Exchange recovery code for session
-    async function verifyRecoveryCode() {
-      const code = searchParams.get("code");
-      if (!code) {
-        setError("Invalid or expired reset link. Please request a new one.");
-        setChecking(false);
-        return;
-      }
-
-      try {
-        const { error } = await supabase.auth.verifyOtp({
-          email: "", // Not needed for recovery
-          token: code,
-          type: "recovery",
-        });
-
-        if (error) {
-          setError("Invalid or expired reset link. Please request a new one.");
-        }
-        setChecking(false);
-      } catch (err) {
-        setError("Failed to verify reset link. Please request a new one.");
-        setChecking(false);
-      }
-    }
-
-    verifyRecoveryCode();
-  }, [searchParams]);
+    // Just show the form - let Supabase handle the recovery session
+    // from the URL code parameter when user submits
+    setChecking(false);
+  }, []);
 
   async function handleReset(e: React.FormEvent) {
     e.preventDefault();
