@@ -33,7 +33,7 @@ function AuthForm() {
       else setMsg("Account created! You can now sign in.");
     } else if (mode === "forgot") {
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${location.origin}/auth/reset?next=${next}`,
+        redirectTo: `https://jobtrack-web-prannay-khushalanis-projects.vercel.app/auth/reset?next=${next}`,
       });
       if (error) setError(error.message);
       else setMsg("Password reset link sent to your email. Check your inbox!");

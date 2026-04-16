@@ -54,7 +54,10 @@ function ResetForm() {
     } else {
       setMsg("Password updated! Redirecting to login...");
       const next = searchParams.get("next") || "/dashboard";
-      setTimeout(() => router.push(`/auth?next=${encodeURIComponent(next)}`), 2000);
+      setTimeout(() => {
+        // Use stable domain to ensure consistent redirect
+        window.location.href = `https://jobtrack-web-prannay-khushalanis-projects.vercel.app/auth?next=${encodeURIComponent(next)}`;
+      }, 2000);
     }
   }
 
