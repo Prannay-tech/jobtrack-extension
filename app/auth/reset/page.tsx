@@ -20,19 +20,11 @@ function ResetForm() {
   const supabase = createClient();
 
   useEffect(() => {
-    // Listen for auth state changes - Supabase sets session after parsing URL hash
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (event === "SIGNED_IN" || event === "PASSWORD_RECOVERY") {
-        // Recovery session is valid, user can now reset password
-        setChecking(false);
-      } else if (!session) {
-        setError("Invalid or expired reset link. Please request a new one.");
-        setChecking(false);
-      }
-    });
-
-    return () => subscription?.unsubscribe();
-  }, [supabase.auth]);
+    // Recovery session is established by Supabase from URL hash
+    // We don't need to check session state - just allow the form to render
+    // The updateUser() call will validate the session when user submits
+    setChecking(false);
+  }, []);
 
   async function handleReset(e: React.FormEvent) {
     e.preventDefault();
@@ -49,18 +41,23 @@ function ResetForm() {
     }
 
     setLoading(true);
-    const { error } = await supabase.auth.updateUser({ password });
-    setLoading(false);
+    try {
+      const { error } = await supabase.auth.updateUser({ password });
+      setLoading(false);
 
-    if (error) {
-      setError(error.message);
-    } else {
-      setMsg("Password updated! Redirecting to login...");
-      const next = searchParams.get("next") || "/dashboard";
-      setTimeout(() => {
-        // Use stable domain to ensure consistent redirect
-        window.location.href = `https://jobtrack-web-prannay-khushalanis-projects.vercel.app/auth?next=${encodeURIComponent(next)}`;
-      }, 2000);
+      if (error) {
+        setError(error.message || "Failed to reset password. Please request a new reset link.");
+      } else {
+        setMsg("Password updated! Redirecting to login...");
+        const next = searchParams.get("next") || "/dashboard";
+        setTimeout(() => {
+          // Use stable domain to ensure consistent redirect
+          window.location.href = `https://jobtrack-web-prannay-khushalanis-projects.vercel.app/auth?next=${encodeURIComponent(next)}`;
+        }, 2000);
+      }
+    } catch (err) {
+      setLoading(false);
+      setError("Session expired or invalid. Please request a new password reset link.");
     }
   }
 
